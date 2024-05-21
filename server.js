@@ -2,6 +2,7 @@ const express = require("express");
 const connectToDb = require("./config/dbConnection");
 const errorHandler = require("./middleware/errorHandler");
 const dotenv = require("dotenv").config();
+const serverless = require("serverless-http");
 
 connectToDb();
 
@@ -17,13 +18,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/users", require("./routes/cityRoutes"));
+// app.use("/api/users", require("./routes/userRoutes")); before deploying to netlify
+// app.use("/api/users", require("./routes/cityRoutes"));
+// app.use(errorHandler);
+
+app.use("/.netlify/functions/api/users", require("./routes/userRoutes"));
+app.use("/.netlify/functions/api/users", require("./routes/cityRoutes"));
 app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`server is running on port ${port}`);
 });
+
+module.exports.handler = serverless(app);
 
 //? User Routes
 //! path to register         => /api/users/register
